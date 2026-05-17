@@ -1,0 +1,6 @@
+# Ignorar dados locais e arquivos sensíveis
+.env
+comprasja.db
+__pycache__/
+*.pyc
+venv/
