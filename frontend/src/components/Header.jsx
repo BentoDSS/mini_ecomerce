@@ -7,9 +7,9 @@ export default function Header() {
 
   return (
     <header>
-      <h1>ComprasJá</h1>
+      <h1 onClick={() => navigate("/")} style={{cursor: 'pointer'}}>ComprasJá</h1>
       <nav>
-        <button onClick={() => navigate("/")}>Catálogo</button>
+        <button onClick={() => navigate("/catalogo")}>Catálogo</button>
 
         {usuario?.perfil === "admin" && (
           <button onClick={() => navigate("/admin")}>Painel Admin</button>

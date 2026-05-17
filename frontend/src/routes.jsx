@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
 import Catalogo from "./pages/Catalogo";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
@@ -10,7 +11,8 @@ import RotaProtegida from "./components/RotaProtegida";
 export default function AppRoutes() {
   return (
     <Routes>
-        <Route path="/" element={<Catalogo />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/catalogo" element={<Catalogo />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
 
