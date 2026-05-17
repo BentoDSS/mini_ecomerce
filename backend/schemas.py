@@ -23,3 +23,22 @@ class ProdutoCreate(ProdutoBase):
 
 class ProdutoUpdate(ProdutoBase):
     pass
+
+class UsuarioBase(BaseModel):
+    nome: str
+    email: str
+    perfil: str = "user"
+    ativo: bool = True
+
+class UsuarioCreate(UsuarioBase):
+    senha: str
+
+class UsuarioUpdate(UsuarioBase):
+    senha: Optional[str] = None
+
+class UsuarioResponse(UsuarioBase):
+    id: int
+    criado_em: datetime
+
+    class Config:
+        from_attributes = True
