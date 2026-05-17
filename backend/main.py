@@ -74,6 +74,27 @@ def listar_produtos(db: Session = Depends(get_db)):
     produtos = db.query(models.Produto).filter(models.Produto.ativo == True).all()
     return produtos
 
+# =====================================================================
+# ROTA TEMPORÁRIA DE SEED — REMOVER APÓS O PRIMEIRO USO EM PRODUÇÃO
+# =====================================================================
+@app.get("/api/seed-admin")
+def seed_admin(db: Session = Depends(get_db)):
+    existente = db.query(models.Usuario).filter(models.Usuario.email == "admin@loja.com").first()
+    if existente:
+        return {"message": "Admin já existe, nada foi alterado."}
+    
+    admin = models.Usuario(
+        nome="Administrador",
+        email="admin@loja.com",
+        senha_hash="admin123",
+        perfil="admin",
+        ativo=True
+    )
+    db.add(admin)
+    db.commit()
+    return {"message": "Admin criado com sucesso! Email: admin@loja.com | Senha: admin123"}
+
+
 @app.get("/api/admin/produtos", response_model=list[schemas.ProdutoResponse])
 def listar_todos_produtos(db: Session = Depends(get_db), token: dict = Depends(verificar_token)):
     # Retorna todos os produtos (ativos e inativos) para o painel admin
