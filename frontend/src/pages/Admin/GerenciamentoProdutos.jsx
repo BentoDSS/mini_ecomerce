@@ -221,7 +221,7 @@ export default function GerenciamentoProdutos() {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
-                <button type="button" onClick={closeModal} style={{ padding: '0.75rem 1.5rem', border: '1px solid #ccc', borderRadius: '4px', background: 'white', cursor: 'pointer' }}>Cancelar</button>
+                <button type="button" onClick={closeModal} style={{ padding: '0.75rem 1.5rem', border: '1px solid #ccc', borderRadius: '4px', background: 'white', color: '#1e293b', cursor: 'pointer' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ padding: '0.75rem 1.5rem' }}>Salvar</button>
               </div>
             </form>

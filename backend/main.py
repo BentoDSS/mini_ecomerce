@@ -126,6 +126,25 @@ def deletar_produto(produto_id: int, db: Session = Depends(get_db), token: dict 
 def listar_todos_usuarios(db: Session = Depends(get_db), token: dict = Depends(verificar_token)):
     return db.query(models.Usuario).all()
 
+# Rota pública de auto-cadastro para usuários comuns
+@app.post("/api/cadastro", response_model=schemas.UsuarioResponse)
+def cadastrar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
+    db_usuario = db.query(models.Usuario).filter(models.Usuario.email == usuario.email).first()
+    if db_usuario:
+        raise HTTPException(status_code=400, detail="Email já cadastrado")
+    
+    novo_usuario = models.Usuario(
+        nome=usuario.nome,
+        email=usuario.email,
+        senha_hash=usuario.senha,
+        perfil="user",  # Sempre 'user' no auto-cadastro
+        ativo=True
+    )
+    db.add(novo_usuario)
+    db.commit()
+    db.refresh(novo_usuario)
+    return novo_usuario
+
 @app.post("/api/usuarios", response_model=schemas.UsuarioResponse)
 def criar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db), token: dict = Depends(verificar_token)):
     db_usuario = db.query(models.Usuario).filter(models.Usuario.email == usuario.email).first()

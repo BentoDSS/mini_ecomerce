@@ -74,12 +74,18 @@ export default function Login() {
 
           <button 
             type="submit" 
-            className="btn-primary" 
             disabled={loading}
-            style={{ marginTop: '1rem', padding: '0.75rem', fontSize: '1rem', width: '100%' }}
+            style={{ marginTop: '1rem', padding: '0.75rem', fontSize: '1rem', width: '100%', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
           >
             {loading ? 'Entrando...' : 'Entrar no Sistema'}
           </button>
+
+          <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#64748b' }}>
+            Não tem uma conta?{' '}
+            <a href="/cadastro" style={{ color: 'var(--primary-color)', fontWeight: 'bold', textDecoration: 'none' }}>
+              Criar conta
+            </a>
+          </p>
         </form>
       </div>
     </div>

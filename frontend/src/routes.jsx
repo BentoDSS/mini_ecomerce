@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Catalogo from "./pages/Catalogo";
 import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
 import Dashboard from "./pages/Admin/Dashboard";
 import GerenciamentoProdutos from "./pages/Admin/GerenciamentoProdutos";
 import GerenciamentoUsuarios from "./pages/Admin/GerenciamentoUsuarios";
@@ -11,6 +12,7 @@ export default function AppRoutes() {
     <Routes>
         <Route path="/" element={<Catalogo />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Cadastro />} />
 
         {/* Rotas protegidas — somente admin */}
         <Route path="/admin" element={
