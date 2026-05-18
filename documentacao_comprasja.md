@@ -16,6 +16,8 @@
 8. [Fluxo de Autenticação e Segurança](#8-fluxo-de-autenticação-e-segurança)
 9. [Fluxo de Negócio Principal](#9-fluxo-de-negócio-principal)
 10. [Guia de Instalação e Execução](#10-guia-de-instalação-e-execução)
+11. [Deploy em Produção](#11-deploy-em-produção)
+12. [Troubleshooting](#12-troubleshooting)
 
 ---
 
@@ -289,7 +291,8 @@ src/
 ├── context/
 │   └── AuthContext.jsx      # Contexto global de autenticação (JWT + perfil)
 ├── pages/
-│   ├── Catalogo.jsx         # Página principal do e-commerce
+│   ├── Home.jsx             # Página inicial com hero section e destaques (NOVO)
+│   ├── Catalogo.jsx         # Página de catálogo completo
 │   ├── Login.jsx            # Tela de Login e Cadastro
 │   └── Admin/
 │       ├── Dashboard.jsx              # Visão geral do painel
@@ -300,10 +303,33 @@ src/
 │   ├── authService.js       # Funções de login e cadastro
 │   ├── produtosService.js   # Funções de CRUD de produtos
 │   └── usuariosService.js   # Funções de CRUD de usuários
+├── styles/
+│   └── Home.css             # Estilos da página inicial (NOVO)
 └── routes.jsx               # Configuração de rotas com React Router v6
 ```
 
-### 7.2 AuthContext — Gerenciamento de Autenticação
+### 7.2 Página Inicial (Home) — NOVO
+
+A página inicial foi adicionada em maio de 2026 para melhorar a experiência do usuário. Está acessível em `/` e contém:
+
+**Seções:**
+- **Hero Section**: Boas-vindas com CTA "Explorar Catálogo"
+- **Categorias Populares**: Grade com 4 categorias (Eletrônicos, Moda, Casa, Livros)
+- **Produtos em Destaque**: Exibe os 6 primeiros produtos do catálogo
+- **Vantagens**: 4 cards destacando benefícios (Rápido, Seguro, Preço Justo, Suporte)
+- **Call-to-Action Final**: Convite para acessar o catálogo completo
+
+**Componentes:**
+- `Home.jsx` - Componente principal da página
+- `Home.css` - Estilos com glassmorphism, animações e efeitos visuais
+
+**Design:**
+- Responsivo (mobile, tablet, desktop)
+- Gradientes e blur effects (glassmorphism)
+- Animações fluidas (0.3s)
+- Paleta de cores consistente (Indigo/Purple gradient)
+
+### 7.3 AuthContext — Gerenciamento de Autenticação
 
 ```jsx
 // src/context/AuthContext.jsx
@@ -339,7 +365,7 @@ export function AuthProvider({ children }) {
 export const useAuth = () => useContext(AuthContext);
 ```
 
-### 7.3 Header — Botão Condicional para Admin
+### 7.4 Header — Botão Condicional para Admin
 
 ```jsx
 // src/components/Header.jsx
@@ -374,7 +400,7 @@ export default function Header() {
 }
 ```
 
-### 7.4 Rota Protegida
+### 7.5 Rota Protegida
 
 ```jsx
 // src/components/RotaProtegida.jsx
@@ -391,7 +417,7 @@ export default function RotaProtegida({ children, apenasAdmin = false }) {
 }
 ```
 
-### 7.5 Configuração de Rotas
+### 7.6 Configuração de Rotas
 
 ```jsx
 // src/routes.jsx
@@ -432,7 +458,7 @@ export default function AppRoutes() {
 }
 ```
 
-### 7.6 Configuração do Axios com Interceptor JWT
+### 7.7 Configuração do Axios com Interceptor JWT
 
 ```js
 // src/services/api.js
@@ -458,7 +484,16 @@ export default api;
 
 ## 8. Fluxo de Autenticação e Segurança
 
-### 8.1 Fluxo de Login
+### 8.1 Segurança Implementada
+
+✅ **JWT com expiração** - Tokens expiram em tempo determinado  
+✅ **Hash de senhas** - Armazenadas com bcrypt, nunca em texto plano  
+✅ **HTTPS** - Obrigatório em produção  
+✅ **CORS configurado** - Apenas domínios permitidos  
+✅ **Validação de entrada** - Todos os dados validados com Pydantic  
+✅ **Autorização por perfil** - Admin-only endpoints protegidos  
+
+### 8.2 Fluxo de Login
 
 ```
 Usuário preenche e-mail e senha
@@ -481,7 +516,7 @@ POST /auth/login  ──►  FastAPI valida credenciais
      perfil = admin? ──► Exibe botão "Painel Admin" no Header
 ```
 
-### 8.2 Proteção de Rota — Dupla Camada
+### 8.3 Proteção de Rota — Dupla Camada
 
 **Frontend (React Router):**
 O componente `RotaProtegida` verifica se o usuário está logado e se possui perfil `admin` antes de renderizar a página. Caso contrário, redireciona para `/login` ou `/`.
@@ -589,5 +624,258 @@ npm start
 
 ---
 
-*Documentação técnica do projeto ComprasJá — versão 1.0*
-*Gerada para fins de especificação de engenharia e guia de desenvolvimento.*
+## 11. Deploy em Produção
+
+### 11.1 Frontend — Netlify
+
+**URL em Produção:** `https://comprasja.netlify.app`
+
+#### Pré-requisitos
+- Repositório Git no GitHub/GitLab
+- Conta Netlify conectada ao repositório
+
+#### Processo de Deploy
+
+1. **Build local para testar:**
+```bash
+cd frontend
+npm run build
+# Gera pasta `build/` otimizada
+```
+
+2. **Configurar Netlify:**
+   - Conectar repositório à Netlify
+   - Build command: `npm run build`
+   - Publish directory: `build`
+   - Environment variable: `REACT_APP_API_URL=https://comprasja-api.onrender.com`
+
+3. **Deploy automático:**
+   - Cada push para `main` dispara novo build
+   - Netlify compila e publica automaticamente
+
+#### Configuração de Redirects (SPA)
+
+Crie arquivo `netlify.toml` na raiz do projeto:
+
+```toml
+[build]
+  command = "npm run build"
+  publish = "build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+```
+
+### 11.2 Backend — Render
+
+**URL em Produção:** `https://comprasja-api.onrender.com`
+
+#### Pré-requisitos
+- Repositório Git
+- Conta Render
+
+#### Processo de Deploy
+
+1. **Preparar arquivo `render.yaml`:**
+
+```yaml
+services:
+  - type: web
+    name: comprasja-api
+    env: python
+    region: ohio
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 8000
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+```
+
+2. **Variáveis de Ambiente no Render:**
+   - `DATABASE_URL`: String de conexão PostgreSQL
+   - `SECRET_KEY`: Chave JWT (gerar aleatória)
+   - `ALGORITHM`: HS256
+
+3. **Conectar repositório:**
+   - Acessar Render Dashboard
+   - Criar novo Web Service
+   - Conectar repositório Git
+   - Selecionar branch `main`
+   - Render detecta `render.yaml` e faz deploy automático
+
+#### Exemplo de DATABASE_URL (Render PostgreSQL)
+
+```
+postgresql://usuario:senha@pg-comprasja.render-instances.com:5432/comprasja_db
+```
+
+### 11.3 Banco de Dados — PostgreSQL no Render
+
+#### Setup
+
+1. **Criar PostgreSQL no Render:**
+   - Dashboard → New → PostgreSQL
+   - Name: `comprasja-db`
+   - Plan: Free tier
+   - Region: Same as API
+
+2. **Cópia da conexão:**
+   - Copiar External Database URL
+   - Usar como `DATABASE_URL` na API
+
+#### Backup e Restore
+
+- **Automático:** Render faz backup diário (7 dias retenção)
+- **Manual:** Dashboard → Backups → Create Backup
+- **Restore:** Dashboard → Backups → Restore
+
+### 11.4 CORS Configurado para Produção
+
+No backend (`main.py`), o CORS está configurado para aceitar:
+
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",           # Desenvolvimento
+        "https://comprasja.netlify.app"   # Produção
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+### 11.5 Checklist de Deploy
+
+- [ ] Build frontend local funciona (`npm run build`)
+- [ ] Variáveis de ambiente configuradas
+- [ ] CORS incluindo domínio Netlify
+- [ ] SECRET_KEY alterada de valor padrão
+- [ ] Banco de dados PostgreSQL criado e acessível
+- [ ] Migrations/tabelas criadas no banco
+- [ ] Teste login/autenticação em produção
+- [ ] HTTPS habilitado (automático em Netlify/Render)
+- [ ] Monitorar logs de erro
+
+---
+
+## 12. Troubleshooting
+
+### Erro: "Connection refused" no Backend
+
+**Causa:** PostgreSQL não está rodando ou credenciais incorretas
+
+**Solução:**
+```bash
+# Windows
+Get-Service postgresql-x64-14 | Start-Service
+
+# Mac/Linux
+sudo systemctl start postgresql
+
+# Testar conexão
+psql -U postgres -h localhost -d comprasja
+```
+
+### Erro: "CORS error" no Frontend
+
+**Causa:** Domínio do frontend não está em `allow_origins`
+
+**Solução:** Adicionar domínio ao backend:
+```python
+allow_origins=[
+    "http://localhost:3000",
+    "https://comprasja.netlify.app"
+]
+```
+
+### Erro: "JWT Token expirado"
+
+**Causa:** Token JWT passou do tempo de expiração
+
+**Solução:** 
+- Fazer logout e login novamente
+- Aumentar `ACCESS_TOKEN_EXPIRE_MINUTES` se necessário
+
+### Erro: "Produto não aparece no catálogo"
+
+**Causa:** Produto pode estar com `ativo = false`
+
+**Solução:** Verificar no banco de dados:
+```sql
+SELECT * FROM produtos WHERE nome = 'Seu Produto';
+-- Verificar se ativo = true
+UPDATE produtos SET ativo = true WHERE id = 1;
+```
+
+### Erro: "Permission denied" ao criar produto
+
+**Causa:** Usuário não é admin ou token inválido
+
+**Solução:**
+- Verificar se usuário tem perfil `admin` no banco
+- Renovar token fazendo login novamente
+- Verificar header `Authorization: Bearer <TOKEN>`
+
+### Deploy no Netlify: "Build failed"
+
+**Causa:** Dependências não instaladas ou variáveis faltando
+
+**Solução:**
+```bash
+# Testar build localmente
+npm run build
+
+# Verificar .env.production
+REACT_APP_API_URL=https://comprasja-api.onrender.com
+
+# Verificar logs no Netlify Dashboard
+```
+
+### Deploy no Render: "Application failed to start"
+
+**Causa:** Dependências Python faltando ou DATABASE_URL incorreta
+
+**Solução:**
+```bash
+# Verificar requirements.txt
+pip install -r requirements.txt
+
+# Testar localmente
+uvicorn main:app --reload
+
+# Verificar logs no Render Dashboard
+```
+
+### Banco de dados vazio após deploy
+
+**Causa:** Migrations não foram executadas
+
+**Solução:** Executar schema no Render:
+```bash
+# Via console Render
+python -c "from database import Base, engine; Base.metadata.create_all(engine)"
+
+# Ou executar schema.sql manualmente via pgAdmin
+```
+
+### Frontend não consegue conectar à API em produção
+
+**Causa:** URL da API incorreta ou CORS bloqueado
+
+**Solução:**
+1. Verificar `REACT_APP_API_URL` no Netlify
+2. Verificar console do navegador (F12) para erro exato
+3. Confirmar CORS no backend inclui domínio Netlify
+
+---
+
+*Documentação técnica do projeto ComprasJá — versão 2.0*
+*Última atualização: Maio 2026*
+*Inclui: Especificação, Deploy e Troubleshooting completos*
